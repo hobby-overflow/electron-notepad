@@ -24,11 +24,14 @@ const execPath =
     ? '../node_modules/electron/dist/electron.exe'
     : '../node_modules/.bin/electron';
 
-// pathにelectronのパスを明記してあげるとリロードできるようになった
-require('electron-reload')(__dirname, {
-  electron: path.resolve(__dirname, 
-												"../node_modules/electron/dist/electron"),
-});
+// 開発モードの場合はホットリロードする
+if (isDev) {
+  require('electron-reload')(__dirname, {
+    electron: path.resolve(__dirname, execPath),
+    forceHardReset: true,
+    hardResetMethod: 'exit',
+  });
+}
 
 // BrowserWindow インスタンスを作成する関数
 const createWindow = () => {

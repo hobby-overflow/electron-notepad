@@ -10,8 +10,8 @@ export default class TextView extends React.Component<{},{}> {
         return (
         <>
             <p>TextView Component</p>
-            <p>TextView Reload Test</p>
-            <p>TextView Reload</p>
+            <p>Reload Test</p>
+            <p>Reload ??</p>
         </>
         )
     }
