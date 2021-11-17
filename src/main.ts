@@ -5,18 +5,6 @@ import * as fs from 'fs';
 
 const isDev = process.env.NODE_ENV === 'development';
 
- ipcMain.handle('open', async (event) => {
-     const { canceled, filePaths } = await dialog.showOpenDialog({
-         filters: [
-             { name: 'Documents', extensions: ['txt'] }
-         ]
-     })
-
-     if (canceled) return {canceled, data: [] }
-
-     const data = filePaths.map((filePath) => fs.readFileSync(filePath, { encoding: 'utf8' }))
-     return { canceled, data }
- })
  
 
 const execPath =
@@ -33,9 +21,37 @@ require('electron-reload')(__dirname, {
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
     webPreferences: {
-      preload: path.resolve(__dirname, 'preload.js'),
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.resolve(__dirname, 'preload.js')
     },
   });
+
+  ipcMain.handle('open-dialog', async () => {
+    const dirpath = await dialog
+      .showOpenDialog(mainWindow, {
+        properties: ['openDirectory'],
+      })
+      .then((result) => {
+        if (result.canceled) return;
+
+        return result.filePaths[0];
+      })
+      .catch((err) => console.log(err));
+      
+      if (!dirpath) return;
+
+      const filelist = await fs.promises
+        .readdir(dirpath, { withFileTypes: true })
+        .then((dirents) => 
+          dirents
+            .filter((dirent) => dirent.isFile())
+            .map(({ name }) => path.join(dirpath, name))
+        )
+        .catch((err) => console.log(err));
+        
+        return filelist;
+  })
 
   if (isDev) {
     // 開発モードの場合はデベロッパーツールを開く
@@ -45,6 +61,7 @@ const createWindow = () => {
   // レンダラープロセスをロード
   mainWindow.loadFile('dist/index.html');
 };
+
 
 app.whenReady().then(async () => {
   if (isDev) {

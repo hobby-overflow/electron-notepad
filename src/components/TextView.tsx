@@ -1,17 +1,30 @@
-import React from 'react'
+import React, { useState, useEffect } from "react";
+import { ReactDOM } from "react";
 
-export default class TextView extends React.Component<{},{}> {
+const { myAPI } = window;
 
-    constructor(props: any) {
-        super(props);
-    }
+const TextView: React.FC = () => {
+    const [list, setList] = useState<string[]>([]);
 
-    render () {
-        return (
-        <>
-            <p>TextView Component</p>
-            <p>TextView Reload OK</p>
-        </>
-        )
-    }
+    const onClickOpen = async () => {
+        const filelist = await myAPI.openDialog();
+        
+        if (!filelist) return;
+
+        setList(filelist);
+    };
+    
+    return (
+        <div>
+            <button onClick={onClickOpen}>OpenDirectory and Show Files</button>
+            <ul>
+                {list.map((item, index) => (
+                    <li key={index}>{item}</li>
+                ))}
+            </ul>
+        </div>
+    )
+    
 }
+
+export default TextView;

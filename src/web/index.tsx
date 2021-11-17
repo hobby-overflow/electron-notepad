@@ -1,7 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-
-import TextView from '../components/TextView'
+import TextView from '../components/TextView';
 
 import './index.css';
 
